@@ -47,11 +47,15 @@ char	*merge_line(int fd, char **backup)
 			return (0);
 		chridx = ft_get_chridx(merge, '\n', &idx);
 		if (chridx)
+		{
+			free(buf);
 			break ;
+		}
 		if (buf[0] == '\0')
 		{
 			idx = ft_strlen(merge) - 1;
 			*backup = ft_strdup("", 0);
+			free(buf);
 			break ;
 		}
 	}

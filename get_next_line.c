@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <stdio.h>
 
 char	*read_buff_size(int fd)
 {
@@ -51,11 +50,12 @@ char	*merge_line(int fd, char **backup)
 			break ;
 		if (buf[0] == '\0')
 		{
-			
-			
+			idx = ft_strlen(merge) - 1;
+			*backup = ft_strdup("", 0);
+			break ;
 		}
 	}
-	if (!chridx)
+	if (chridx)
 		*backup = update_backup(*backup, chridx + 1);
 	buf = ft_strdup(merge, idx + 1);
 	free(merge);
@@ -70,25 +70,26 @@ char	*get_next_line(int fd)
 	if (fd < 0 || fd > 1024 || BUFFER_SIZE <= 0)
 		return (0);
 	if (backup && *backup == '\0')
+	{
+		free(backup);
 		return (0);
+	}
 	line = merge_line(fd, &backup);
-	// if (line[0] == '\0')
-	// 	return (0);
 	return (line);
 }
 
-#include <stdio.h>
-# include <fcntl.h>
+// #include <stdio.h>
+// # include <fcntl.h>
 
-int main(){
-	int fd = open("./test1.txt", O_RDONLY);
+// int main(){
+// 	int fd = open("./test.txt", O_RDONLY);
 
-	while (1){
-		char *line = get_next_line(fd);
-		if (!line)
-			break;
-		printf("%s", line);
-		free(line);
-	}
-	close(fd);
-}
+// 	while (1){
+// 		char *line = get_next_line(fd);
+// 		if (!line)
+// 			break;
+// 		printf("%s", line);
+// 		free(line);
+// 	}
+// 	close(fd);
+// }

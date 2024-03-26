@@ -22,17 +22,33 @@ size_t	ft_strlen(const char *s)
 	return (len);
 }
 
-char	*ft_get_chridx(const char *s, int c, size_t *idx)
+char	*ft_get_chridx(const char *s, int c)
 {
 	while (*s != '\0')
 	{
 		if (*s == c)
 			return ((char *)s);
 		s++;
-		(*idx)++;
 	}
 	return (0);
 }
+
+// size_t	ft_strlcpy(char *dst, const char *src, size_t size)
+// {
+// 	size_t	src_len;
+
+// 	src_len = 0;
+// 	while (src[src_len] != '\0' && src_len + 1 < size)
+// 	{
+// 		dst[src_len] = src[src_len];
+// 		src_len++;
+// 	}
+// 	if (size > 0)
+// 		dst[src_len] = '\0';
+// 	while (src[src_len] != '\0')
+// 		src_len++;
+// 	return (src_len);
+// }
 
 size_t	ft_strlcat(char *dst, const char *src, size_t size)
 {
@@ -56,17 +72,14 @@ size_t	ft_strlcat(char *dst, const char *src, size_t size)
 	return (dst_len + src_len);
 }
 
-char	*ft_strdup(const char *s, size_t n)
+char	*ft_strdup(const char *s)
 {
 	char	*dup;
 	size_t	len;
 
 	if (!s)
-		return (ft_strdup("", 1));
-	if (n == 0)
-		len = ft_strlen(s);
-	else
-		len = n;
+		return (ft_strdup(""));
+	len = ft_strlen(s);
 	dup = (char *)malloc(sizeof(char) * (len + 1));
 	if (!dup)
 		return (0);
@@ -82,7 +95,15 @@ char	*ft_strjoin(char *s1, char *s2)
 	size_t	s2_len;
 
 	if (!s1 || !s2)
+	{
+		free(s2);
 		return (0);
+	}
+	if (*s2 == '\0')
+	{
+		free(s2);
+		return (s1);
+	}
 	s1_len = ft_strlen(s1);
 	s2_len = ft_strlen(s2);
 	join_str = (char *)malloc(sizeof(char) * (s1_len + s2_len + 1));
@@ -92,6 +113,6 @@ char	*ft_strjoin(char *s1, char *s2)
 	ft_strlcat(join_str, s1, s1_len + 1);
 	ft_strlcat(join_str, s2, s1_len + s2_len + 1);
 	free(s1);
-	// free(s2);
+	free(s2);
 	return (join_str);
 }

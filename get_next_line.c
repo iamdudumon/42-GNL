@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-
+// #include <stdio.h>
 char	*read_buff_size(int fd)
 {
 	ssize_t	size;
@@ -21,49 +21,54 @@ char	*read_buff_size(int fd)
 	if (size < 0)
 		return (0);
 	buf[size] = '\0';
-	return (ft_strdup(buf, 0));
+	return (ft_strdup(buf));
 }
 
-char	*update_backup(char *backup, char *chridx)
+char	*update_backup(char *chridx)
 {
-	free(backup);
-	return (ft_strdup(chridx, 0));
+	if (!chridx)
+		return (ft_strdup(""));
+	return (ft_strdup(chridx + 1));
+}
+
+char	*get_sub_newline(char *s)
+{
+	char	*newline;
+	size_t	s_len;
+
+	if (!s)
+		return (0);
+	s_len = (size_t)(ft_get_chridx(s, '\n') - s);
+	newline = (char *)malloc(sizeof(char) * (s_len + 1));
+	if (!newline)
+		return (0);
+	newline[0] = '\0';
+	ft_strlcat(newline, s, s_len + 2);
+	free(s);
+	return (newline);
 }
 
 char	*merge_line(int fd, char **backup)
 {
-	char	*buf;
 	char	*merge;
+	char	*prev_merge;
 	char	*chridx;
-	size_t	idx;
 
-	merge = ft_strdup(*backup, 0);
+	merge = *backup;
 	while (1)
 	{
-		idx = 0;
-		buf = read_buff_size(fd);
-		merge = ft_strjoin(merge, buf);
+		prev_merge = merge;
+		merge = ft_strjoin(merge, read_buff_size(fd));
 		if (!merge)
 			return (0);
-		chridx = ft_get_chridx(merge, '\n', &idx);
+		chridx = ft_get_chridx(merge, '\n');
 		if (chridx)
-		{
-			free(buf);
 			break ;
-		}
-		if (buf[0] == '\0')
-		{
-			idx = ft_strlen(merge) - 1;
-			*backup = ft_strdup("", 0);
-			free(buf);
-			break ;
-		}
+		if (prev_merge == merge)
+			return (merge);
 	}
-	if (chridx)
-		*backup = update_backup(*backup, chridx + 1);
-	buf = ft_strdup(merge, idx + 1);
-	free(merge);
-	return (buf);
+	*backup = update_backup(chridx);
+	return (get_sub_newline(merge));
 }
 
 char	*get_next_line(int fd)
@@ -78,22 +83,28 @@ char	*get_next_line(int fd)
 		free(backup);
 		return (0);
 	}
+	if (!backup)
+	{
+		backup = ft_strdup("");
+		if (!backup)
+			return (0);
+	}
 	line = merge_line(fd, &backup);
 	return (line);
 }
 
-// #include <stdio.h>
-// # include <fcntl.h>
+#include <stdio.h>
+#include <fcntl.h>
 
-// int main(){
-// 	int fd = open("./test.txt", O_RDONLY);
-
-// 	while (1){
-// 		char *line = get_next_line(fd);
-// 		if (!line)
-// 			break;
-// 		printf("%s", line);
-// 		free(line);
-// 	}
-// 	close(fd);
-// }
+int main(){
+	int fd = open("./test1.txt", O_RDONLY);
+	int i = 0;
+	while (1){
+		char *line = get_next_line(fd);
+		if (!line)
+			break;
+		printf("%d: %s", i++, line);
+		free(line);
+	}
+	close(fd);
+}

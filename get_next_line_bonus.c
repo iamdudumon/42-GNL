@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line_bonus.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dukim <dukim@student.42gyeongsan.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -11,27 +11,6 @@
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
-
-t_list	*find_backup_node(t_list *backup_list, int fd)
-{
-	t_list	*ptr;
-	char	*buf;
-
-	ptr = backup_list;
-	while (ptr->fd != fd && ptr->next != 0)
-		ptr = ptr->next;
-	if (ptr->fd == fd)
-		return (ptr);
-	buf = (char *)malloc(sizeof(char) * 2);
-	if (!buf || read(fd, buf, 1) <= 0)
-	{
-		free(buf);
-		return (0);
-	}
-	buf[1] = '\0';
-	ptr->next = lstnew(fd, buf);
-	return (ptr->next);
-}
 
 void	delete_backup_node(t_list **backup_list, t_list *target)
 {

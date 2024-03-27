@@ -94,3 +94,23 @@ t_list	*lstnew(int fd, char *backup)
 	return (node);
 }
 
+t_list	*find_backup_node(t_list *backup_list, int fd)
+{
+	t_list	*ptr;
+	char	*buf;
+
+	ptr = backup_list;
+	while (ptr->fd != fd && ptr->next != 0)
+		ptr = ptr->next;
+	if (ptr->fd == fd)
+		return (ptr);
+	buf = (char *)malloc(sizeof(char) * 2);
+	if (!buf || read(fd, buf, 1) <= 0)
+	{
+		free(buf);
+		return (0);
+	}
+	buf[1] = '\0';
+	ptr->next = lstnew(fd, buf);
+	return (ptr->next);
+}

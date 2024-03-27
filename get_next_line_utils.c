@@ -33,23 +33,6 @@ char	*ft_get_chridx(const char *s, int c)
 	return (0);
 }
 
-// size_t	ft_strlcpy(char *dst, const char *src, size_t size)
-// {
-// 	size_t	src_len;
-
-// 	src_len = 0;
-// 	while (src[src_len] != '\0' && src_len + 1 < size)
-// 	{
-// 		dst[src_len] = src[src_len];
-// 		src_len++;
-// 	}
-// 	if (size > 0)
-// 		dst[src_len] = '\0';
-// 	while (src[src_len] != '\0')
-// 		src_len++;
-// 	return (src_len);
-// }
-
 size_t	ft_strlcat(char *dst, const char *src, size_t size)
 {
 	size_t	dst_len;
@@ -94,16 +77,16 @@ char	*ft_strjoin(char *s1, char *s2)
 	size_t	s1_len;
 	size_t	s2_len;
 
-	if (!s1 || !s2)
-	{
-		free(s2);
-		return (0);
-	}
-	if (*s2 == '\0')
-	{
-		free(s2);
-		return (s1);
-	}
+	// if (!s1 || !s2)
+	// {
+	// 	free(s1);
+	// 	return (0);
+	// }
+	// if (*s2 == '\0')
+	// {
+	// 	free(s2);
+	// 	return (s1);
+	// }
 	s1_len = ft_strlen(s1);
 	s2_len = ft_strlen(s2);
 	join_str = (char *)malloc(sizeof(char) * (s1_len + s2_len + 1));

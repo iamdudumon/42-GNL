@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
-#include <stdio.h>
+
 t_list	*find_backup_node(t_list *backup_list, int fd)
 {
 	t_list	*ptr;
@@ -24,7 +24,10 @@ t_list	*find_backup_node(t_list *backup_list, int fd)
 		return (ptr);
 	buf = (char *)malloc(sizeof(char) * 2);
 	if (!buf || read(fd, buf, 1) <= 0)
+	{
+		free(buf);
 		return (0);
+	}
 	buf[1] = '\0';
 	ptr->next = lstnew(fd, buf);
 	return (ptr->next);
@@ -36,10 +39,9 @@ void	delete_backup_node(t_list **backup_list, t_list *target)
 
 	if (*backup_list == target)
 	{
-		// printf("target: %p\n", target);
+		*backup_list = target->next;
 		free(target->backup);
 		free(target);
-		*backup_list = 0;
 		return ;
 	}
 	ptr = *backup_list;
@@ -143,40 +145,40 @@ char	*get_next_line(int fd)
 	return (line);
 }
 
-#include <stdio.h>
-#include <fcntl.h>
+// #include <stdio.h>
+// #include <fcntl.h>
 
-int main(){
-	int fd1 = open("./test1.txt", O_RDONLY);
-	int fd2 = open("./test2.txt", O_RDONLY);
-	int fd3 = open("./test3.txt", O_RDONLY);
-	int i = 0;
+// int main(){
+// 	int fd1 = open("./test1.txt", O_RDONLY);
+// 	int fd2 = open("./test2.txt", O_RDONLY);
+// 	int fd3 = open("./test3.txt", O_RDONLY);
+// 	int i = 0;
 
-	while (1){
-		char *line1= get_next_line(fd1);
-		char *line2 = get_next_line(fd2);
-		char *line3 = get_next_line(fd3);
+// 	while (1){
+// 		char *line1= get_next_line(fd1);
+// 		char *line2 = get_next_line(fd2);
+// 		char *line3 = get_next_line(fd3);
 
-		if (line1)
-			printf("line1->%d: %s", i, line1);
-		else
-			printf("line1->%d: null\n", i);
-		if (line2)
-			printf("line2->%d: %s", i, line2);
-		else
-			printf("line2->%d: null\n", i);
-		if (line3)
-			printf("line3->%d: %s", i, line3);
-		else
-			printf("line3->%d: null\n", i);
-		free(line1);
-		free(line2);
-		free(line3);
-		i++;
-		if (!line1 && !line2 && !line3)// 
-			break;
-	}
-	close(fd1);
-	close(fd2);
-	close(fd3);
-}
+// 		if (line1)
+// 			printf("line1->%d: %s", i, line1);
+// 		else
+// 			printf("line1->%d: null\n", i);
+// 		if (line2)
+// 			printf("line2->%d: %s", i, line2);
+// 		else
+// 			printf("line2->%d: null\n", i);
+// 		if (line3)
+// 			printf("line3->%d: %s", i, line3);
+// 		else
+// 			printf("line3->%d: null\n", i);
+// 		free(line1);
+// 		free(line2);
+// 		free(line3);
+// 		i++;
+// 		if (!line1 && !line2 && !line3)// 
+// 			break;
+// 	}
+// 	close(fd1);
+// 	close(fd2);
+// 	close(fd3);
+// }

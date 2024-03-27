@@ -15,24 +15,25 @@
 char	*read_buff_size(int fd)
 {
 	ssize_t	size;
-	char	buf[BUFFER_SIZE + 1];
+	char	*buf;
 
+	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!buf)
+		return (0);
 	size = read(fd, buf, BUFFER_SIZE);
 	if (size < 0)
 		return (0);
 	buf[size] = '\0';
-	return (ft_strdup(buf));
+	return (buf);
 }
 
-char	*get_sub_newline(char *s, int flag)
+char	*get_sub_newline(char *s)
 {
 	char	*newline;
 	size_t	s_len;
 
 	if (!s)
 		return (0);
-	if (flag == 1)
-		return (s);
 	s_len = (size_t)(ft_get_chridx(s, '\n') - s);
 	newline = (char *)malloc(sizeof(char) * (s_len + 2));
 	if (!newline)
@@ -63,7 +64,9 @@ char	*merge_line(int fd, char **backup, char **buf)
 		chridx = ft_get_chridx(merge, '\n');
 	}
 	*backup = ft_strdup(chridx + 1);
-	return (get_sub_newline(merge, **backup == '\0'));
+	if (**backup == '\0')
+		return (merge);
+	return (get_sub_newline(merge));
 }
 
 char	*get_next_line(int fd)

@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dukim <dukim@student.42gyeongsan.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -11,25 +11,43 @@
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
-
-t_list	*find_backup(t_list *backup_list, int fd)
+#include <stdio.h>
+t_list	*find_backup_node(t_list *backup_list, int fd)
 {
 	t_list	*ptr;
+	char	*buf;
 
 	ptr = backup_list;
-	while (ptr->fd == fd && ptr->next != 0)
+	while (ptr->fd != fd && ptr->next != 0)
 		ptr = ptr->next;
 	if (ptr->fd == fd)
 		return (ptr);
-	ptr->next = (t_list *)malloc(sizeof(t_list) * 1);
-	if (!(ptr->next))
+	buf = (char *)malloc(sizeof(char) * 2);
+	if (!buf || read(fd, buf, 1) <= 0)
 		return (0);
-	ptr->next->fd = fd;
-	ptr->next->backup = ft_strdup("");
-	if (!(ptr->next->backup))
-		return (0);
-	ptr->next->next = 0;
+	buf[1] = '\0';
+	ptr->next = lstnew(fd, buf);
 	return (ptr->next);
+}
+
+void	delete_backup_node(t_list **backup_list, t_list *target)
+{
+	t_list	*ptr;
+
+	if (*backup_list == target)
+	{
+		// printf("target: %p\n", target);
+		free(target->backup);
+		free(target);
+		*backup_list = 0;
+		return ;
+	}
+	ptr = *backup_list;
+	while (ptr->next->fd != target->fd && ptr->next->next != 0)
+		ptr = ptr->next;
+	ptr->next = target->next;
+	free(target->backup);
+	free(target);
 }
 
 char	*read_buff_size(int fd)
@@ -51,6 +69,7 @@ char	*get_sub_newline(char *s)
 {
 	char	*newline;
 	size_t	s_len;
+	size_t	len;
 
 	if (!s)
 		return (0);
@@ -58,8 +77,13 @@ char	*get_sub_newline(char *s)
 	newline = (char *)malloc(sizeof(char) * (s_len + 2));
 	if (!newline)
 		return (0);
-	newline[0] = '\0';
-	ft_strlcat(newline, s, s_len + 2);
+	len = 0;
+	while (len < s_len + 1)
+	{
+		newline[len] = s[len];
+		len++;
+	}
+	newline[len] = '\0';
 	free(s);
 	return (newline);
 }
@@ -83,7 +107,9 @@ char	*merge_line(int fd, char **backup, char **buf)
 			return (0);
 		chridx = ft_get_chridx(merge, '\n');
 	}
-	*backup = ft_strdup(chridx + 1);
+	if (chridx)
+		chridx += 1;
+	*backup = ft_strdup(chridx);
 	if (**backup == '\0')
 		return (merge);
 	return (get_sub_newline(merge));
@@ -92,44 +118,44 @@ char	*merge_line(int fd, char **backup, char **buf)
 char	*get_next_line(int fd)
 {
 	static t_list	*backup_list;
-	t_list			*backup;
+	t_list			*node;
 	char			*line;
-	char			*buf;	
+	char			*buf;
 
-	if (fd < 0 || fd > 1024 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (0);
 	if (!backup_list)
 	{
-		backup_list = (t_list *)malloc(sizeof(t_list) * 1);
+		backup_list = lstnew(fd, ft_strdup(""));
 		if (!backup_list)
 			return (0);
-		backup_list->fd = fd;
-		backup_list->backup = ft_strdup("");
-		if (!(backup_list->backup))
-			return (0);
-		backup_list->next = 0;
 	}
-	backup = find_backup(backup_list, fd);
-	line = merge_line(backup->fd, &(backup->backup), &buf);
+	node = find_backup_node(backup_list, fd);
+	if (!node)
+		return (0);
+	line = merge_line(node->fd, &(node->backup), &buf);
 	if (!line)
 	{
-		free(backup);
+		delete_backup_node(&backup_list, node);
 		free(buf);
 		return (0);
 	}
 	return (line);
 }
+
 #include <stdio.h>
 #include <fcntl.h>
 
 int main(){
 	int fd1 = open("./test1.txt", O_RDONLY);
 	int fd2 = open("./test2.txt", O_RDONLY);
+	int fd3 = open("./test3.txt", O_RDONLY);
 	int i = 0;
 
 	while (1){
 		char *line1= get_next_line(fd1);
 		char *line2 = get_next_line(fd2);
+		char *line3 = get_next_line(fd3);
 
 		if (line1)
 			printf("line1->%d: %s", i, line1);
@@ -139,12 +165,18 @@ int main(){
 			printf("line2->%d: %s", i, line2);
 		else
 			printf("line2->%d: null\n", i);
+		if (line3)
+			printf("line3->%d: %s", i, line3);
+		else
+			printf("line3->%d: null\n", i);
 		free(line1);
 		free(line2);
+		free(line3);
 		i++;
-		if (!line1 && !line2)
+		if (!line1 && !line2 && !line3)// 
 			break;
 	}
 	close(fd1);
 	close(fd2);
+	close(fd3);
 }

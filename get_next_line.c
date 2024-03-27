@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <stdio.h>
+
 char	*read_buff_size(int fd)
 {
 	ssize_t	size;
@@ -24,13 +24,15 @@ char	*read_buff_size(int fd)
 	return (ft_strdup(buf));
 }
 
-char	*get_sub_newline(char *s)
+char	*get_sub_newline(char *s, int flag)
 {
 	char	*newline;
 	size_t	s_len;
 
 	if (!s)
 		return (0);
+	if (flag == 1)
+		return (s);
 	s_len = (size_t)(ft_get_chridx(s, '\n') - s);
 	newline = (char *)malloc(sizeof(char) * (s_len + 2));
 	if (!newline)
@@ -41,42 +43,34 @@ char	*get_sub_newline(char *s)
 	return (newline);
 }
 
-char	*merge_line(int fd, char **backup)
+char	*merge_line(int fd, char **backup, char **buf)
 {
 	char	*merge;
-	char	*buf;
 	char	*chridx;
 
 	merge = *backup;
-	while (1)
+	chridx = ft_get_chridx(merge, '\n');
+	while (!chridx)
 	{
-		chridx = ft_get_chridx(merge, '\n');
-		if (chridx)
-			break ;
-		buf = read_buff_size(fd);
-		if (!buf || (*buf == '\0' && *merge == '\0'))
-		{
-			free(buf);
+		*buf = read_buff_size(fd);
+		if (!(*buf) || (**buf == '\0' && *merge == '\0'))
 			return (0);
-		}
-		if (*buf == '\0')
-		{
-			*backup = ft_strdup("");
-			free(buf);
-			return (merge);
-		}
-		merge = ft_strjoin(merge, buf);
+		if (**buf == '\0')
+			break ;
+		merge = ft_strjoin(merge, *buf);
 		if (!merge)
 			return (0);
+		chridx = ft_get_chridx(merge, '\n');
 	}
 	*backup = ft_strdup(chridx + 1);
-	return (get_sub_newline(merge));
+	return (get_sub_newline(merge, **backup == '\0'));
 }
 
 char	*get_next_line(int fd)
 {
 	static char	*backup;
-	char		*line;	
+	char		*line;
+	char		*buf;	
 
 	if (fd < 0 || fd > 1024 || BUFFER_SIZE <= 0)
 		return (0);
@@ -86,15 +80,15 @@ char	*get_next_line(int fd)
 		if (!backup)
 			return (0);
 	}
-	line = merge_line(fd, &backup);
+	line = merge_line(fd, &backup, &buf);
 	if (!line)
 	{
 		free(backup);
+		free(buf);
 		return (0);
 	}
 	return (line);
 }
-
 // #include <stdio.h>
 // #include <fcntl.h>
 

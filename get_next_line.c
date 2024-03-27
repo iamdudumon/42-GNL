@@ -64,6 +64,8 @@ char	*merge_line(int fd, char **backup, char **buf)
 		chridx = ft_get_chridx(merge, '\n');
 	}
 	*backup = ft_strdup(chridx + 1);
+	if (chridx)
+		chridx += 1;
 	if (**backup == '\0')
 		return (merge);
 	return (get_sub_newline(merge));

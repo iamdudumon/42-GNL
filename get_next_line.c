@@ -21,92 +21,103 @@ char	*read_buff_size(int fd)
 	if (!buf)
 		return (0);
 	size = read(fd, buf, BUFFER_SIZE);
-	if (size < 0)
+	if (size == -1)
+	{
+		free(buf);
 		return (0);
+	}
 	buf[size] = '\0';
 	return (buf);
 }
 
-char	*get_sub_newline(char *s)
+char	*is_readable_fd(int fd, char *backup)
 {
-	char	*newline;
-	size_t	s_len;
+	char	*temp;
+	char	*buf;
 
-	if (!s)
-		return (0);
-	s_len = (size_t)(ft_get_chridx(s, '\n') - s);
-	newline = (char *)malloc(sizeof(char) * (s_len + 2));
-	if (!newline)
-		return (0);
-	newline[0] = '\0';
-	ft_strlcat(newline, s, s_len + 2);
-	free(s);
-	return (newline);
-}
-
-char	*merge_line(int fd, char **backup, char **buf)
-{
-	char	*merge;
-	char	*chridx;
-
-	merge = *backup;
-	chridx = ft_get_chridx(merge, '\n');
-	while (!chridx)
-	{
-		*buf = read_buff_size(fd);
-		if (!(*buf) || (**buf == '\0' && *merge == '\0'))
-			return (0);
-		if (**buf == '\0')
-			break ;
-		merge = ft_strjoin(merge, *buf);
-		if (!merge)
-			return (0);
-		chridx = ft_get_chridx(merge, '\n');
-	}
-	*backup = ft_strdup(chridx + 1);
-	if (chridx)
-		chridx += 1;
-	if (**backup == '\0')
-		return (merge);
-	return (get_sub_newline(merge));
-}
-
-char	*get_next_line(int fd)
-{
-	static char	*backup;
-	char		*line;
-	char		*buf;	
-
-	if (fd < 0 || fd > 1024 || BUFFER_SIZE <= 0)
-		return (0);
 	if (!backup)
 	{
 		backup = ft_strdup("");
 		if (!backup)
 			return (0);
 	}
-	line = merge_line(fd, &backup, &buf);
-	if (!line)
+	buf = read_buff_size(fd);
+	temp = ft_strjoin(backup, buf);
+	if (!temp)
+		return (0);
+	if (*temp == '\0')
 	{
-		free(backup);
-		free(buf);
+		free(temp);
 		return (0);
 	}
-	return (line);
+	return (temp);
 }
-// #include <stdio.h>
-// #include <fcntl.h>
 
-// int main(){
-// 	int fd = open("./test.txt", O_RDONLY);
-// 	int i = 0;
-// 	char *line;
-// 	while (1){
-// 		line = get_next_line(fd);
-// 		if (!line)
-// 			break;
-// 		printf("%d: %s", i++, line);
-// 		free(line);
-// 	}
-// 	close(fd);
-// }
+char	*merge_line(int fd, char **backup)
+{
+	char	*merge;
+	char	*chridx;
+	char	*buf;
+
+	merge = ft_strdup(*backup);
+	chridx = ft_get_chridx(merge, '\n');
+	while (!chridx)
+	{
+		buf = read_buff_size(fd);
+		if (buf && *buf == '\0')
+		{
+			free(buf);
+			break ;
+		}
+		merge = ft_strjoin(merge, buf);
+		if (!merge)
+			return (0);
+		chridx = ft_get_chridx(merge, '\n');
+	}
+	if (chridx)
+		chridx += 1;
+	free(*backup);
+	*backup = ft_strdup(chridx);
+	return (merge);
+}
+
+char	*get_next_line(int fd)
+{
+	static char	*backup;
+	char		*merge;
+	char		*newline;
+
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (0);
+	backup = is_readable_fd(fd, backup);
+	if (!backup)
+		return (0);
+	merge = merge_line(fd, &backup);
+	newline = ft_get_sub_newline(merge, *backup == '\0');
+	if (!newline)
+	{
+		free(backup);
+		backup = 0;
+	}
+	return (newline);
+}
+
+#include <stdio.h>
+#include <fcntl.h>
+
+int main(){
+	int fd = open("./test1.txt", O_RDONLY);
+	int i = 0;
+	char *line;
+	while (1){
+		line = get_next_line(fd);
+		if (!line)
+			break;
+		printf("%d: %s", i++, line);
+		free(line);
+	}
+	line = get_next_line(fd);
+	printf("%d: %s", i++, line);
+	free(line);
+	close(fd);
+}

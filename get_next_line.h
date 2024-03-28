@@ -24,7 +24,6 @@ char	*get_next_line(int fd);
 char	*ft_strjoin(char *s1, char *s2);
 char	*ft_strdup(const char *s);
 char	*ft_get_chridx(const char *s, int c);
-size_t	ft_strlen(const char *s);
-size_t	ft_strlcat(char *dst, const char *src, size_t size);
+char	*ft_get_sub_newline(char *s, int end_flag);
 
 #endif

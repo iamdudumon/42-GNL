@@ -12,6 +12,23 @@
 
 #include "get_next_line_bonus.h"
 
+size_t	ft_strlcpy(char *dst, const char *src, size_t size)
+{
+	size_t	src_len;
+
+	src_len = 0;
+	while (src[src_len] != '\0' && src_len + 1 < size)
+	{
+		dst[src_len] = src[src_len];
+		src_len++;
+	}
+	if (size > 0)	
+		dst[src_len] = '\0';
+	while (src[src_len] != '\0')
+		src_len++;
+	return (src_len);
+}
+
 char	*ft_get_chridx(const char *s, int c)
 {
 	while (*s != '\0')
@@ -52,65 +69,47 @@ char	*ft_strjoin(char *s1, char *s2)
 	char	*join_str;
 	size_t	s1_len;
 	size_t	s2_len;
-	size_t	len;
 
+	if (!s1 || !s2)
+	{
+		free(s1);
+		free(s2);
+		return (0);
+	}
 	s1_len = (size_t)(ft_get_chridx(s1, '\0') - s1);
 	s2_len = (size_t)(ft_get_chridx(s2, '\0') - s2);
 	join_str = (char *)malloc(sizeof(char) * (s1_len + s2_len + 1));
 	if (!join_str)
+	{
+		free(s1);
+		free(s2);
 		return (0);
-	len = 0;
-	while (len < s1_len)
-	{
-		join_str[len] = s1[len];
-		len++;
 	}
-	while (len < s1_len + s2_len)
-	{
-		join_str[len] = s2[len - s1_len];
-		len++;
-	}
-	join_str[len] = '\0';
+	ft_strlcpy(join_str, s1, s1_len + 1);
+	ft_strlcpy(join_str + s1_len, s2, s2_len + 1);
 	free(s1);
 	free(s2);
 	return (join_str);
 }
 
-t_list	*lstnew(int fd, char *backup)
+char	*ft_get_sub_newline(char *s, int end_flag)
 {
-	t_list	*node;
+	char	*newline;
+	size_t	s_len;
 
-	if (!backup)
+	if (!s)
 		return (0);
-	node = (t_list *)malloc(sizeof(t_list) * 1);
-	if (!node)
+	if (end_flag)
+		s_len = (size_t)(ft_get_chridx(s, '\0') - s);
+	else
+		s_len = (size_t)(ft_get_chridx(s, '\n') - s) + 1;
+	newline = (char *)malloc(sizeof(char) * (s_len + 1));
+	if (!newline)
 	{
-		free(backup);
+		free(s);
 		return (0);
 	}
-	node->fd = fd;
-	node->backup = backup;
-	node->next = 0;
-	return (node);
-}
-
-t_list	*find_backup_node(t_list *backup_list, int fd)
-{
-	t_list	*ptr;
-	char	*buf;
-
-	ptr = backup_list;
-	while (ptr->fd != fd && ptr->next != 0)
-		ptr = ptr->next;
-	if (ptr->fd == fd)
-		return (ptr);
-	buf = (char *)malloc(sizeof(char) * 2);
-	if (!buf || read(fd, buf, 1) <= 0)
-	{
-		free(buf);
-		return (0);
-	}
-	buf[1] = '\0';
-	ptr->next = lstnew(fd, buf);
-	return (ptr->next);
+	ft_strlcpy(newline, s, s_len + 1);
+	free(s);
+	return (newline);
 }

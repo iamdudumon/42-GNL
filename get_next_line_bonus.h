@@ -31,7 +31,6 @@ char	*get_next_line(int fd);
 char	*ft_strjoin(char *s1, char *s2);
 char	*ft_strdup(const char *s);
 char	*ft_get_chridx(const char *s, int c);
-t_list	*lstnew(int fd, char *backup);
-t_list	*find_backup_node(t_list *backup_list, int fd);
+char	*ft_get_sub_newline(char *s, int end_flag);
 
 #endif

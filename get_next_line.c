@@ -98,12 +98,12 @@ char	*get_next_line(int fd)
 		free(backup);
 	return (newline);
 }
-/*
+
 #include <stdio.h>
 #include <fcntl.h>
 
 int main(){
-	int fd = open("./test1.txt", O_RDONLY);
+	int fd = open("./42_with_nl", O_RDONLY);
 	int i = 0;
 	char *line;
 	while (1){
@@ -113,8 +113,6 @@ int main(){
 		printf("%d: %s", i++, line);
 		free(line);
 	}
-	line = get_next_line(fd);
-	printf("%d: %s", i++, line);
 	free(line);
 	close(fd);
-}*/
+}

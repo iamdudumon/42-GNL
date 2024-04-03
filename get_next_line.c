@@ -93,15 +93,12 @@ char	*get_next_line(int fd)
 	if (!backup)
 		return (0);
 	merge = merge_line(fd, &backup);
-	newline = ft_get_sub_newline(merge, *backup == '\0');
-	if (!newline)
-	{
+	newline = ft_get_sub_newline(merge, !backup);
+	if (!newline || !backup)
 		free(backup);
-		backup = 0;
-	}
 	return (newline);
 }
-
+/*
 #include <stdio.h>
 #include <fcntl.h>
 
@@ -120,4 +117,4 @@ int main(){
 	printf("%d: %s", i++, line);
 	free(line);
 	close(fd);
-}
+}*/

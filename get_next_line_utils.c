@@ -48,7 +48,7 @@ char	*ft_strdup(const char *s)
 	size_t	s_len;
 
 	if (!s)
-		return (ft_strdup(""));
+		return (0);
 	s_len = (size_t)(ft_get_chridx(s, '\0') - s);
 	dup = (char *)malloc(sizeof(char) * (s_len + 1));
 	if (!dup)

@@ -98,21 +98,3 @@ char	*get_next_line(int fd)
 		free(backup);
 	return (newline);
 }
-
-#include <stdio.h>
-#include <fcntl.h>
-
-int main(){
-	int fd = open("./42_with_nl", O_RDONLY);
-	int i = 0;
-	char *line;
-	while (1){
-		line = get_next_line(fd);
-		if (!line)
-			break;
-		printf("%d: %s", i++, line);
-		free(line);
-	}
-	free(line);
-	close(fd);
-}

@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line_utils_bonus.c                        :+:      :+:    :+:   */
+/*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dukim <dukim@student.42gyeongsan.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line_bonus.h"
+#include "get_next_line.h"
 
 size_t	ft_strlcpy(char *dst, const char *src, size_t size)
 {
@@ -46,7 +46,6 @@ char	*ft_strdup(const char *s)
 {
 	char	*dup;
 	size_t	s_len;
-	size_t	len;
 
 	if (!s)
 		return (0);
@@ -54,13 +53,7 @@ char	*ft_strdup(const char *s)
 	dup = (char *)malloc(sizeof(char) * (s_len + 1));
 	if (!dup)
 		return (0);
-	len = 0;
-	while (len < s_len)
-	{
-		dup[len] = s[len];
-		len++;
-	}
-	dup[len] = '\0';
+	ft_strlcpy(dup, s, s_len + 1);
 	return (dup);
 }
 
@@ -99,11 +92,6 @@ char	*ft_get_sub_newline(char *s, int end_flag)
 
 	if (!s)
 		return (0);
-	if (*s == '\0')
-	{
-		free(s);
-		return (0);
-	}
 	if (end_flag)
 		s_len = (size_t)(ft_get_chridx(s, '\0') - s);
 	else

@@ -35,12 +35,6 @@ char	*is_readable_fd(int fd, char *backup)
 	char	*temp;
 	char	*buf;
 
-	if (!backup)
-	{
-		backup = ft_strdup("");
-		if (!backup)
-			return (0);
-	}
 	buf = read_buff_size(fd);
 	temp = ft_strjoin(backup, buf);
 	if (!temp)
@@ -83,12 +77,20 @@ char	*merge_line(int fd, char **backup)
 
 char	*get_next_line(int fd)
 {
-	static char	*backup;
+	static char	*backup_list[4096];
+	char		*backup;
 	char		*merge;
 	char		*newline;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (0);
+	backup = backup_list[fd];
+	if (!backup)
+	{
+		backup = ft_strdup("");
+		if (!backup)
+			return (0);
+	}
 	backup = is_readable_fd(fd, backup);
 	if (!backup)
 		return (0);

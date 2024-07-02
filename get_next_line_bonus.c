@@ -15,27 +15,42 @@
 static char	*read_buffer(t_list	*node)
 {
 	char	*buf;
-	char	*res;
 	ssize_t	size;
 
 	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!buf)
+		return (0);
 	size = read(node->fd, buf, BUFFER_SIZE);
+	if (size == -1)
+	{
+		free(buf);
+		return (0);
+	}
 	buf[size] = '\0';
-	res = ft_strjoin(node->backup, buf, '\0');
-	free(node->backup);
-	free(buf);
+	return (buf);
+}
+
+static char	*split_buffer(char *buf, char **backup)
+{
+	char	*res;
+
+	res = ft_strjoin(*backup, buf, '\0');
+	free(*backup);
+	*backup = 0;
+	if (*res == '\0')
+	{
+		free(res);
+		return (0);
+	}
 	if (!ft_get_chridx(res, '\n'))
 	{
-		if (size == 0)
-		{
-			node->backup = 0;
+		if (*buf == '\0')
 			return (res);
-		}
-		node->backup = res;
+		*backup = res;
 		return (0);
 	}
 	buf = ft_strjoin("", res, '\n');
-	node->backup = ft_strjoin(ft_get_chridx(res, '\n') + 1, "", '\0');
+	*backup = ft_strjoin(ft_get_chridx(res, '\n') + 1, "", '\0');
 	free(res);
 	return (buf);
 }
@@ -43,16 +58,21 @@ static char	*read_buffer(t_list	*node)
 static char	*get_one_line(t_list *node)
 {
 	char	*buf;
+	char	*res;
 
-	buf = read_buffer(node);
-	while (!buf)
-		buf = read_buffer(node);
-	if (*buf == '\0' && !(node->backup))
+	while (1)
 	{
+		buf = read_buffer(node);
+		if (!buf)
+			return (0);
+		res = split_buffer(buf, &(node->backup));
 		free(buf);
-		return (0);
+		if (!res &&!(node->backup))
+			return (0);
+		if (res)
+			break ;
 	}
-	return (buf);
+	return (res);
 }
 
 char	*get_next_line(int fd)

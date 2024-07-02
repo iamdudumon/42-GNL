@@ -61,6 +61,8 @@ char	*get_next_line(int fd)
 	t_list			*node;
 	char			*res;
 
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (0);
 	node = list;
 	while (node)
 	{
